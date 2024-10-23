@@ -48,6 +48,38 @@
             ruby: { price: 10000, amount: 0 },
         };
 
+        // Function to save the game state to localStorage
+        function saveGame() {
+            const gameState = {
+                money,
+                drills,
+                coolerCount,
+                upgrades,
+                drillCooldown,
+                timer,
+                autoSell,
+                ores
+            };
+            localStorage.setItem('miningGameSave', JSON.stringify(gameState));
+        }
+
+        // Function to load the game state from localStorage
+        function loadGame() {
+            const savedGame = localStorage.getItem('miningGameSave');
+            if (savedGame) {
+                const gameState = JSON.parse(savedGame);
+                money = gameState.money;
+                drills = gameState.drills;
+                coolerCount = gameState.coolerCount;
+                upgrades = gameState.upgrades;
+                drillCooldown = gameState.drillCooldown;
+                timer = gameState.timer;
+                autoSell = gameState.autoSell;
+                Object.assign(ores, gameState.ores);  // Restore ore amounts
+                updateDisplay();
+            }
+        }
+
         function updateDisplay() {
             document.getElementById('money').innerText = `Money: $${money}`;
             document.getElementById('timer').innerText = `Time: ${timer}s`;
@@ -139,6 +171,12 @@
             button.onclick = () => sellOre(ore);
             document.getElementById('oreList').appendChild(button);
         }
+
+        // Auto-save every second
+        setInterval(saveGame, 1000);
+
+        // Load the game state on startup
+        loadGame();
 
         startTimer();
         setInterval(mine, drillCooldown);
