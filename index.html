@@ -11,6 +11,7 @@
         button { margin: 5px; }
         #oreList { margin-top: 20px; }
         #counters { margin-top: 20px; }
+        .ore-row { margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -84,9 +85,18 @@
             document.getElementById('money').innerText = `Money: $${money}`;
             document.getElementById('timer').innerText = `Time: ${timer}s`;
             document.getElementById('counters').innerText = `Miners: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount}`;
-            document.getElementById('oreList').innerHTML = Object.entries(ores)
-                .map(([ore, data]) => `${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount}`)
-                .join('<br>');
+            document.getElementById('oreList').innerHTML = '';
+            Object.entries(ores).forEach(([ore, data]) => {
+                const oreRow = document.createElement('div');
+                oreRow.classList.add('ore-row');
+                oreRow.innerHTML = `
+                    ${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
+                    <button onclick="sellOre('${ore}', 1)">Sell 1</button>
+                    <button onclick="sellOre('${ore}', 10)">Sell 10</button>
+                    <button onclick="sellOre('${ore}', data.amount)">Sell All</button>
+                `;
+                document.getElementById('oreList').appendChild(oreRow);
+            });
         }
 
         function mine() {
@@ -109,20 +119,20 @@
             updateDisplay();
         }
 
-        function sellOre(ore) {
-            if (ores[ore].amount >= 10) {
-                ores[ore].amount -= 10;
-                money += ores[ore].price;
+        // Updated sellOre function to handle selling 1, 10, or all ores
+        function sellOre(ore, quantity) {
+            if (ores[ore].amount >= quantity) {
+                ores[ore].amount -= quantity;
+                money += ores[ore].price * quantity;
                 updateDisplay();
             }
         }
 
         function sellAllOres() {
             for (const ore of Object.keys(ores)) {
-                while (ores[ore].amount >= 10) {
-                    ores[ore].amount -= 10;
-                    money += ores[ore].price;
-                }
+                const amountToSell = ores[ore].amount;
+                money += ores[ore].price * amountToSell;
+                ores[ore].amount = 0;
             }
             updateDisplay();
         }
@@ -164,13 +174,6 @@
             autoSell = !autoSell;
             document.getElementById('autoSell').innerText = autoSell ? "Disable Auto Sell" : "Enable Auto Sell";
         };
-
-        for (const ore of Object.keys(ores)) {
-            const button = document.createElement('button');
-            button.innerText = `Sell 10 ${ore.charAt(0).toUpperCase() + ore.slice(1)}`;
-            button.onclick = () => sellOre(ore);
-            document.getElementById('oreList').appendChild(button);
-        }
 
         // Auto-save every second
         setInterval(saveGame, 1000);
