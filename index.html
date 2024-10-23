@@ -9,6 +9,7 @@
         #canvas { border: 1px solid #000; margin-top: 10px; }
         #controls { margin: 10px; }
         .material { margin: 5px 0; }
+        .sell-buttons { margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -87,13 +88,15 @@
         }
 
         function mine() {
-            if (!miningCooldown) {
+            if (drillLevel > 0 && !miningCooldown) {
                 miningCooldown = true;
                 const chances = calculateChances();
                 const minedMaterial = getRandomMaterial(chances);
                 materials[minedMaterial].quantity += Math.floor(Math.random() * 10) + 1;
                 updateDisplay();
-                setTimeout(() => miningCooldown = false, 200);
+                setTimeout(() => miningCooldown = false, 1000); // 1 second cooldown
+            } else if (drillLevel === 0) {
+                alert("You need to buy a drill first!");
             }
         }
 
@@ -104,9 +107,9 @@
                 iron: 75,
                 magma: 45,
                 gold: 25,
-                diamond: 15,
-                emerald: 7.4,
-                ruby: 3.2
+                diamond: 13, // Decreased by 2%
+                emerald: 5.4, // Decreased by 2%
+                ruby: 1.2 // Decreased by 2%
             };
 
             const upgradeBonus = drillLevel; // 1% increase per upgrade
@@ -138,7 +141,36 @@
                 const div = document.createElement('div');
                 div.className = 'material';
                 div.textContent = `${material.charAt(0).toUpperCase() + material.slice(1)}: ${materials[material].quantity}`;
+
+                const sellButtons = document.createElement('span');
+                sellButtons.className = 'sell-buttons';
+                
+                const sell1 = createSellButton(material, 1);
+                const sell10 = createSellButton(material, 10);
+                const sellAll = createSellButton(material, materials[material].quantity);
+
+                sellButtons.appendChild(sell1);
+                sellButtons.appendChild(sell10);
+                sellButtons.appendChild(sellAll);
+                div.appendChild(sellButtons);
+
                 materialsList.appendChild(div);
+            }
+        }
+
+        function createSellButton(material, amount) {
+            const button = document.createElement('button');
+            button.textContent = `Sell ${amount}`;
+            button.disabled = materials[material].quantity < amount;
+            button.addEventListener('click', () => sellMaterial(material, amount));
+            return button;
+        }
+
+        function sellMaterial(material, amount) {
+            if (materials[material].quantity >= amount) {
+                materials[material].quantity -= amount;
+                money += materials[material].price * amount;
+                updateDisplay();
             }
         }
 
