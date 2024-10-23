@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Simulator</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #canvas { border: 1px solid #000; margin-top: 10px; }
+        #controls { margin: 10px; }
+        .material { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>Mining Simulator</h1>
+    <div id="controls">
+        <button id="buy-drill">Buy Drill ($50)</button>
+        <button id="upgrade-drill">Upgrade Drill</button>
+        <label>
+            <input type="checkbox" id="auto-sell"> Auto Sell Stone
+        </label>
+    </div>
+    <div>
+        <span>Money: $<span id="money">1000</span></span>
+    </div>
+    <div id="materials-list"></div>
+    <canvas id="canvas" width="400" height="200"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let money = 1000;
+        let drillLevel = 0;
+        let drillCost = 50;
+        let materials = {
+            stone: { price: 5, quantity: 0 },
+            coal: { price: 15, quantity: 0 },
+            iron: { price: 50, quantity: 0 },
+            magma: { price: 100, quantity: 0 },
+            gold: { price: 150, quantity: 0 },
+            diamond: { price: 1000, quantity: 0 },
+            emerald: { price: 10000, quantity: 0 },
+            ruby: { price: 100000, quantity: 0 }
+        };
+
+        let miningCooldown = false;
+
+        document.getElementById('buy-drill').addEventListener('click', buyDrill);
+        document.getElementById('upgrade-drill').addEventListener('click', upgradeDrill);
+        document.getElementById('auto-sell').addEventListener('change', toggleAutoSell);
+
+        function buyDrill() {
+            if (money >= drillCost) {
+                money -= drillCost;
+                drillLevel++;
+                drillCost *= 2;
+                updateDisplay();
+            } else {
+                alert("Not enough money to buy a drill!");
+            }
+        }
+
+        function upgradeDrill() {
+            if (money >= drillCost) {
+                money -= drillCost;
+                drillLevel++;
+                drillCost *= 2;
+                updateDisplay();
+            } else {
+                alert("Not enough money to upgrade the drill!");
+            }
+        }
+
+        function toggleAutoSell() {
+            if (this.checked) {
+                setInterval(autoSellStone, 1000);
+            }
+        }
+
+        function autoSellStone() {
+            if (materials.stone.quantity > 0) {
+                money += materials.stone.quantity * materials.stone.price;
+                materials.stone.quantity = 0;
+                updateDisplay();
+            }
+        }
+
+        function mine() {
+            if (!miningCooldown) {
+                miningCooldown = true;
+                const chances = calculateChances();
+                const minedMaterial = getRandomMaterial(chances);
+                materials[minedMaterial].quantity += Math.floor(Math.random() * 10) + 1;
+                updateDisplay();
+                setTimeout(() => miningCooldown = false, 200);
+            }
+        }
+
+        function calculateChances() {
+            const baseChances = {
+                stone: 100,
+                coal: 80,
+                iron: 75,
+                magma: 45,
+                gold: 25,
+                diamond: 15,
+                emerald: 7.4,
+                ruby: 3.2
+            };
+
+            const upgradeBonus = drillLevel; // 1% increase per upgrade
+            return Object.fromEntries(Object.entries(baseChances).map(([material, chance]) => [material, chance + upgradeBonus]));
+        }
+
+        function getRandomMaterial(chances) {
+            const total = Object.values(chances).reduce((sum, chance) => sum + chance, 0);
+            const random = Math.random() * total;
+            let cumulative = 0;
+
+            for (const material in chances) {
+                cumulative += chances[material];
+                if (random < cumulative) {
+                    return material;
+                }
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('money').textContent = money;
+            renderMaterials();
+        }
+
+        function renderMaterials() {
+            const materialsList = document.getElementById('materials-list');
+            materialsList.innerHTML = '';
+            for (const material in materials) {
+                const div = document.createElement('div');
+                div.className = 'material';
+                div.textContent = `${material.charAt(0).toUpperCase() + material.slice(1)}: ${materials[material].quantity}`;
+                materialsList.appendChild(div);
+            }
+        }
+
+        function renderDrills() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < drillLevel; i++) {
+                ctx.fillStyle = 'gray';
+                ctx.fillRect(i * 30, 20, 20, 20);
+            }
+        }
+
+        setInterval(() => {
+            mine();
+            renderDrills();
+        }, 1000);
+
+        // Auto-save every minute
+        setInterval(() => {
+            localStorage.setItem('money', money);
+            localStorage.setItem('drillLevel', drillLevel);
+            localStorage.setItem('materials', JSON.stringify(materials));
+        }, 60000);
+
+        // Load data from localStorage if it exists
+        window.onload = function() {
+            const savedMoney = localStorage.getItem('money');
+            const savedDrillLevel = localStorage.getItem('drillLevel');
+            const savedMaterials = localStorage.getItem('materials');
+
+            if (savedMoney) money = parseInt(savedMoney);
+            if (savedDrillLevel) drillLevel = parseInt(savedDrillLevel);
+            if (savedMaterials) materials = JSON.parse(savedMaterials);
+
+            updateDisplay();
+            renderDrills();
+        };
+    </script>
+</body>
+</html>
