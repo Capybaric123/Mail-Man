@@ -3,95 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Clicker Game</title>
+    <title>Mining Game</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-        #clicker {
-            padding: 20px;
-            font-size: 24px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-        }
-        #score {
-            margin-top: 20px;
-            font-size: 32px;
-        }
-        #shop {
-            margin-top: 40px;
-        }
-        .upgrade {
-            margin: 10px;
-            padding: 10px;
-            cursor: pointer;
-            border: 1px solid #4CAF50;
-            border-radius: 5px;
-            background-color: white;
-            color: #4CAF50;
-        }
-        .upgrade.disabled {
-            background-color: #ddd;
-            color: #888;
-            cursor: not-allowed;
-        }
+        body { font-family: Arial, sans-serif; }
+        #game { max-width: 600px; margin: auto; }
+        #money, #timer { font-size: 24px; }
+        button { margin: 5px; }
+        #oreList { margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>Enhanced Clicker Game</h1>
-    <button id="clicker">Click me!</button>
-    <div id="score">Score: 0</div>
-    <div id="shop">
-        <h2>Shop</h2>
-        <div id="upgrade1" class="upgrade">Upgrade 1: +1 per click (Cost: 10)</div>
-        <div id="upgrade2" class="upgrade">Upgrade 2: +2 per click (Cost: 25)</div>
-        <div id="upgrade3" class="upgrade">Upgrade 3: +5 per click (Cost: 50)</div>
+    <div id="game">
+        <div id="money">Money: $0</div>
+        <div id="timer">Time: 60s</div>
+        <div>
+            <button id="buyDrill">Buy Drill (50$)</button>
+            <button id="upgradeDrill">Upgrade Drills (100$)</button>
+            <button id="buyCooler">Buy Cooler (200$)</button>
+        </div>
+        <div id="oreList"></div>
     </div>
 
     <script>
-        let score = 0;
-        let pointsPerClick = 1;
+        let money = 0;
+        let drills = 0;
+        let coolerCount = 0;
+        let drillCooldown = 1000; // milliseconds
+        let upgradeCost = 100;
+        let timer = 60;
+        let interval;
 
-        const clickerButton = document.getElementById('clicker');
-        const scoreDisplay = document.getElementById('score');
+        const ores = {
+            stone: { price: 5, amount: 0 },
+            coal: { price: 10, amount: 0 },
+            iron: { price: 15, amount: 0 },
+            magma: { price: 20, amount: 0 },
+            diamond: { price: 100, amount: 0 },
+            emerald: { price: 500, amount: 0 },
+            lazuli: { price: 1000, amount: 0 },
+            ruby: { price: 10000, amount: 0 },
+        };
 
-        const upgrades = [
-            { cost: 10, points: 1, purchased: false },
-            { cost: 25, points: 2, purchased: false },
-            { cost: 50, points: 5, purchased: false },
-        ];
-
-        function updateScoreDisplay() {
-            scoreDisplay.textContent = `Score: ${score}`;
+        function updateDisplay() {
+            document.getElementById('money').innerText = `Money: $${money}`;
+            document.getElementById('timer').innerText = `Time: ${timer}s`;
+            document.getElementById('oreList').innerHTML = Object.entries(ores)
+                .map(([ore, data]) => `${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount}`)
+                .join('<br>');
         }
 
-        clickerButton.addEventListener('click', () => {
-            score += pointsPerClick;
-            updateScoreDisplay();
-        });
-
-        upgrades.forEach((upgrade, index) => {
-            const upgradeElement = document.getElementById(`upgrade${index + 1}`);
-            upgradeElement.addEventListener('click', () => {
-                if (score >= upgrade.cost && !upgrade.purchased) {
-                    score -= upgrade.cost;
-                    pointsPerClick += upgrade.points;
-                    upgrade.purchased = true;
-                    upgradeElement.classList.add('disabled');
-                    upgradeElement.textContent = `Purchased! (Was: +${upgrade.points} per click)`;
-                    updateScoreDisplay();
+        function mine() {
+            if (drills > 0) {
+                for (let i = 0; i < drills; i++) {
+                    let roll = Math.random();
+                    if (roll < 0.0001) ores.ruby.amount += 10;
+                    else if (roll < 0.001) ores.lazuli.amount += 10;
+                    else if (roll < 0.01) ores.emerald.amount += 10;
+                    else if (roll < 0.1) ores.diamond.amount += 10;
+                    else if (roll < 0.3) ores.magma.amount += 10;
+                    else if (roll < 0.6) ores.iron.amount += 10;
+                    else if (roll < 0.9) ores.coal.amount += 10;
+                    else ores.stone.amount += 10;
                 }
-            });
-        });
+            }
+            updateDisplay();
+        }
+
+        function sellOre(ore) {
+            if (ores[ore].amount >= 10) {
+                ores[ore].amount -= 10;
+                money += ores[ore].price;
+                updateDisplay();
+            }
+        }
+
+        function startTimer() {
+            interval = setInterval(() => {
+                timer--;
+                if (timer <= 0) {
+                    clearInterval(interval);
+                    alert(`Time's up! You earned $${money}.`);
+                }
+                updateDisplay();
+            }, 1000);
+        }
+
+        document.getElementById('buyDrill').onclick = () => {
+            if (money >= 50) {
+                drills++;
+                money -= 50;
+                updateDisplay();
+            }
+        };
+
+        document.getElementById('upgradeDrill').onclick = () => {
+            if (money >= upgradeCost) {
+                drillCooldown = Math.max(800, drillCooldown - 200);
+                money -= upgradeCost;
+                upgradeCost += 50; // Increase cost for next upgrade
+                updateDisplay();
+            }
+        };
+
+        document.getElementById('buyCooler').onclick = () => {
+            if (money >= 200) {
+                coolerCount++;
+                drillCooldown = Math.max(800, drillCooldown - 200);
+                money -= 200;
+                updateDisplay();
+            }
+        };
+
+        for (const ore of Object.keys(ores)) {
+            const button = document.createElement('button');
+            button.innerText = `Sell 10 ${ore.charAt(0).toUpperCase() + ore.slice(1)}`;
+            button.onclick = () => sellOre(ore);
+            document.getElementById('oreList').appendChild(button);
+        }
+
+        startTimer();
+        setInterval(mine, drillCooldown);
+        updateDisplay();
     </script>
 </body>
 </html>
