@@ -10,28 +10,32 @@
         #money, #timer { font-size: 24px; }
         button { margin: 5px; }
         #oreList { margin-top: 20px; }
+        #counters { margin-top: 20px; }
     </style>
 </head>
 <body>
     <div id="game">
-        <div id="money">Money: $0</div>
-        <div id="timer">Time: 60s</div>
+        <div id="money">Money: $1000</div>
+        <div id="timer">Time: 0s</div>
         <div>
             <button id="buyDrill">Buy Drill (50$)</button>
             <button id="upgradeDrill">Upgrade Drills (100$)</button>
             <button id="buyCooler">Buy Cooler (200$)</button>
+            <button id="autoSell">Toggle Auto Sell</button>
         </div>
         <div id="oreList"></div>
+        <div id="counters">Miners: 0 | Upgrades: 0 | Coolers: 0</div>
     </div>
 
     <script>
-        let money = 0;
+        let money = 1000;
         let drills = 0;
         let coolerCount = 0;
+        let upgrades = 0;
         let drillCooldown = 1000; // milliseconds
-        let upgradeCost = 100;
-        let timer = 60;
+        let timer = 0;
         let interval;
+        let autoSell = false;
 
         const ores = {
             stone: { price: 5, amount: 0 },
@@ -47,6 +51,7 @@
         function updateDisplay() {
             document.getElementById('money').innerText = `Money: $${money}`;
             document.getElementById('timer').innerText = `Time: ${timer}s`;
+            document.getElementById('counters').innerText = `Miners: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount}`;
             document.getElementById('oreList').innerHTML = Object.entries(ores)
                 .map(([ore, data]) => `${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount}`)
                 .join('<br>');
@@ -65,6 +70,9 @@
                     else if (roll < 0.9) ores.coal.amount += 10;
                     else ores.stone.amount += 10;
                 }
+                if (autoSell) {
+                    sellAllOres();
+                }
             }
             updateDisplay();
         }
@@ -77,13 +85,19 @@
             }
         }
 
-        function startTimer() {
-            interval = setInterval(() => {
-                timer--;
-                if (timer <= 0) {
-                    clearInterval(interval);
-                    alert(`Time's up! You earned $${money}.`);
+        function sellAllOres() {
+            for (const ore of Object.keys(ores)) {
+                while (ores[ore].amount >= 10) {
+                    ores[ore].amount -= 10;
+                    money += ores[ore].price;
                 }
+            }
+            updateDisplay();
+        }
+
+        function startTimer() {
+            setInterval(() => {
+                timer++;
                 updateDisplay();
             }, 1000);
         }
@@ -97,10 +111,10 @@
         };
 
         document.getElementById('upgradeDrill').onclick = () => {
-            if (money >= upgradeCost) {
+            if (money >= 100) {
                 drillCooldown = Math.max(800, drillCooldown - 200);
-                money -= upgradeCost;
-                upgradeCost += 50; // Increase cost for next upgrade
+                money -= 100;
+                upgrades++;
                 updateDisplay();
             }
         };
@@ -112,6 +126,11 @@
                 money -= 200;
                 updateDisplay();
             }
+        };
+
+        document.getElementById('autoSell').onclick = () => {
+            autoSell = !autoSell;
+            document.getElementById('autoSell').innerText = autoSell ? "Disable Auto Sell" : "Enable Auto Sell";
         };
 
         for (const ore of Object.keys(ores)) {
