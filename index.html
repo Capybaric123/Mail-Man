@@ -10,10 +10,12 @@
         #controls { margin: 10px; }
         .material { margin: 5px 0; }
         .sell-buttons { margin-left: 10px; }
+        #message { color: red; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <h1>Mining Simulator</h1>
+    <div id="message"></div>
     <div id="controls">
         <button id="buy-drill">Buy Drill ($50)</button>
         <button id="upgrade-drill">Upgrade Drill</button>
@@ -47,6 +49,8 @@
 
         let miningCooldown = false;
 
+        const messageElement = document.getElementById('message');
+
         document.getElementById('buy-drill').addEventListener('click', buyDrill);
         document.getElementById('upgrade-drill').addEventListener('click', upgradeDrill);
         document.getElementById('auto-sell').addEventListener('change', toggleAutoSell);
@@ -57,8 +61,9 @@
                 drillLevel++;
                 drillCost *= 2;
                 updateDisplay();
+                hideMessage(); // Hide message when drill is bought
             } else {
-                alert("Not enough money to buy a drill!");
+                showMessage("Not enough money to buy a drill!");
             }
         }
 
@@ -69,7 +74,7 @@
                 drillCost *= 2;
                 updateDisplay();
             } else {
-                alert("Not enough money to upgrade the drill!");
+                showMessage("Not enough money to upgrade the drill!");
             }
         }
 
@@ -96,7 +101,7 @@
                 updateDisplay();
                 setTimeout(() => miningCooldown = false, 1000); // 1 second cooldown
             } else if (drillLevel === 0) {
-                alert("You need to buy a drill first!");
+                showMessage("You need to buy a drill first!");
             }
         }
 
@@ -206,7 +211,18 @@
 
             updateDisplay();
             renderDrills();
+            if (drillLevel === 0) {
+                showMessage("You need to buy your first drill!");
+            }
         };
+
+        function showMessage(msg) {
+            messageElement.textContent = msg;
+        }
+
+        function hideMessage() {
+            messageElement.textContent = '';
+        }
     </script>
 </body>
 </html>
