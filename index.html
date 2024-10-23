@@ -6,13 +6,26 @@
     <title>Mining Simulator</title>
     <style>
         body { font-family: Arial, sans-serif; }
-        #canvas { border: 1px solid #000; margin-top: 10px; }
+        #canvas-container {
+            overflow: auto;
+            width: 420px;
+            height: 220px;
+            border: 1px solid #000;
+            position: relative;
+            margin-top: 10px;
+        }
+        #canvas { 
+            width: 400px; 
+            height: 200px; 
+        }
         #controls { margin: 10px; }
         .material { margin: 5px 0; }
         .sell-buttons { margin-left: 10px; }
         #message { color: red; font-weight: bold; margin-bottom: 10px; }
         #timer { position: absolute; top: 10px; right: 10px; }
         #item-list { margin-top: 10px; }
+        h1 { font-size: 24px; }
+        button { margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -30,7 +43,9 @@
         <span>Money: $<span id="money">1000</span></span>
     </div>
     <div id="materials-list"></div>
-    <canvas id="canvas" width="400" height="200"></canvas>
+    <div id="canvas-container">
+        <canvas id="canvas" width="400" height="200"></canvas>
+    </div>
     <div id="timer">Time: 0s</div>
     <div id="item-list"></div>
 
@@ -220,13 +235,23 @@
 
         function renderDrills() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < drillLevel; i++) {
-                ctx.fillStyle = 'gray';
-                ctx.fillRect(i * 30, 20, 20, 20);
-            }
+
+            const itemsPerRow = 13; // Number of items that fit in one row
+            const itemWidth = 30;
+            const itemHeight = 30;
+            const coolerOffset = 20; // Space reserved for coolers
+            const totalItems = drillLevel + coolerCount;
+
             for (let i = 0; i < coolerCount; i++) {
                 ctx.fillStyle = 'blue';
-                ctx.fillRect(i * 30, 0, 20, 20);
+                ctx.fillRect(i * itemWidth, 0, itemWidth, itemHeight);
+            }
+
+            for (let i = 0; i < drillLevel; i++) {
+                const row = Math.floor(i / itemsPerRow) + 1; // Start from the second row for drills
+                const col = i % itemsPerRow;
+                ctx.fillStyle = 'gray';
+                ctx.fillRect(col * itemWidth, row * itemHeight + coolerOffset, itemWidth, itemHeight);
             }
         }
 
