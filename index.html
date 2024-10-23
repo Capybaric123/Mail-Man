@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clicker Game</title>
+    <title>Enhanced Clicker Game</title>
     <style>
         body {
             display: flex;
@@ -27,22 +27,70 @@
             margin-top: 20px;
             font-size: 32px;
         }
+        #shop {
+            margin-top: 40px;
+        }
+        .upgrade {
+            margin: 10px;
+            padding: 10px;
+            cursor: pointer;
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+            background-color: white;
+            color: #4CAF50;
+        }
+        .upgrade.disabled {
+            background-color: #ddd;
+            color: #888;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
-    <h1>Clicker Game</h1>
+    <h1>Enhanced Clicker Game</h1>
     <button id="clicker">Click me!</button>
     <div id="score">Score: 0</div>
+    <div id="shop">
+        <h2>Shop</h2>
+        <div id="upgrade1" class="upgrade">Upgrade 1: +1 per click (Cost: 10)</div>
+        <div id="upgrade2" class="upgrade">Upgrade 2: +2 per click (Cost: 25)</div>
+        <div id="upgrade3" class="upgrade">Upgrade 3: +5 per click (Cost: 50)</div>
+    </div>
 
     <script>
         let score = 0;
+        let pointsPerClick = 1;
 
         const clickerButton = document.getElementById('clicker');
         const scoreDisplay = document.getElementById('score');
 
-        clickerButton.addEventListener('click', () => {
-            score++;
+        const upgrades = [
+            { cost: 10, points: 1, purchased: false },
+            { cost: 25, points: 2, purchased: false },
+            { cost: 50, points: 5, purchased: false },
+        ];
+
+        function updateScoreDisplay() {
             scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        clickerButton.addEventListener('click', () => {
+            score += pointsPerClick;
+            updateScoreDisplay();
+        });
+
+        upgrades.forEach((upgrade, index) => {
+            const upgradeElement = document.getElementById(`upgrade${index + 1}`);
+            upgradeElement.addEventListener('click', () => {
+                if (score >= upgrade.cost && !upgrade.purchased) {
+                    score -= upgrade.cost;
+                    pointsPerClick += upgrade.points;
+                    upgrade.purchased = true;
+                    upgradeElement.classList.add('disabled');
+                    upgradeElement.textContent = `Purchased! (Was: +${upgrade.points} per click)`;
+                    updateScoreDisplay();
+                }
+            });
         });
     </script>
 </body>
