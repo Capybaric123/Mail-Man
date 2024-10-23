@@ -11,6 +11,8 @@
         .material { margin: 5px 0; }
         .sell-buttons { margin-left: 10px; }
         #message { color: red; font-weight: bold; margin-bottom: 10px; }
+        #timer { position: absolute; top: 10px; right: 10px; }
+        #item-list { margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -19,6 +21,7 @@
     <div id="controls">
         <button id="buy-drill">Buy Drill ($50)</button>
         <button id="upgrade-drill">Upgrade Drill</button>
+        <button id="buy-cooler">Buy Cooler ($200)</button>
         <label>
             <input type="checkbox" id="auto-sell"> Auto Sell Stone
         </label>
@@ -28,6 +31,8 @@
     </div>
     <div id="materials-list"></div>
     <canvas id="canvas" width="400" height="200"></canvas>
+    <div id="timer">Time: 0s</div>
+    <div id="item-list"></div>
 
     <script>
         const canvas = document.getElementById('canvas');
@@ -36,6 +41,7 @@
         let money = 1000;
         let drillLevel = 0;
         let drillCost = 50;
+        let coolerCount = 0;
         let materials = {
             stone: { price: 5, quantity: 0 },
             coal: { price: 15, quantity: 0 },
@@ -48,11 +54,15 @@
         };
 
         let miningCooldown = false;
+        let timeSpent = 0;
 
         const messageElement = document.getElementById('message');
+        const timerElement = document.getElementById('timer');
+        const itemListElement = document.getElementById('item-list');
 
         document.getElementById('buy-drill').addEventListener('click', buyDrill);
         document.getElementById('upgrade-drill').addEventListener('click', upgradeDrill);
+        document.getElementById('buy-cooler').addEventListener('click', buyCooler);
         document.getElementById('auto-sell').addEventListener('change', toggleAutoSell);
 
         function buyDrill() {
@@ -65,6 +75,7 @@
             } else {
                 showMessage("Not enough money to buy a drill!");
             }
+            updateDrillButton();
         }
 
         function upgradeDrill() {
@@ -73,8 +84,20 @@
                 drillLevel++;
                 drillCost *= 2;
                 updateDisplay();
+                updateDrillButton();
             } else {
                 showMessage("Not enough money to upgrade the drill!");
+            }
+        }
+
+        function buyCooler() {
+            if (money >= 200 && coolerCount < drillLevel) {
+                money -= 200;
+                coolerCount++;
+                updateDisplay();
+                updateCoolerButton();
+            } else {
+                showMessage("Not enough money to buy a cooler or you have max coolers!");
             }
         }
 
@@ -137,6 +160,15 @@
         function updateDisplay() {
             document.getElementById('money').textContent = money;
             renderMaterials();
+            updateItemList();
+        }
+
+        function updateDrillButton() {
+            document.getElementById('buy-drill').textContent = `Buy Drill ($${drillCost})`;
+        }
+
+        function updateCoolerButton() {
+            document.getElementById('buy-cooler').disabled = coolerCount >= drillLevel;
         }
 
         function renderMaterials() {
@@ -179,11 +211,22 @@
             }
         }
 
+        function updateItemList() {
+            itemListElement.innerHTML = `
+                <div>Drills Bought: ${drillLevel}</div>
+                <div>Coolers Bought: ${coolerCount}</div>
+            `;
+        }
+
         function renderDrills() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < drillLevel; i++) {
                 ctx.fillStyle = 'gray';
                 ctx.fillRect(i * 30, 20, 20, 20);
+            }
+            for (let i = 0; i < coolerCount; i++) {
+                ctx.fillStyle = 'blue';
+                ctx.fillRect(i * 30, 0, 20, 20);
             }
         }
 
@@ -192,10 +235,17 @@
             renderDrills();
         }, 1000);
 
+        // Timer function
+        setInterval(() => {
+            timeSpent++;
+            timerElement.textContent = `Time: ${timeSpent}s`;
+        }, 1000);
+
         // Auto-save every minute
         setInterval(() => {
             localStorage.setItem('money', money);
             localStorage.setItem('drillLevel', drillLevel);
+            localStorage.setItem('coolerCount', coolerCount);
             localStorage.setItem('materials', JSON.stringify(materials));
         }, 60000);
 
@@ -203,14 +253,18 @@
         window.onload = function() {
             const savedMoney = localStorage.getItem('money');
             const savedDrillLevel = localStorage.getItem('drillLevel');
+            const savedCoolerCount = localStorage.getItem('coolerCount');
             const savedMaterials = localStorage.getItem('materials');
 
             if (savedMoney) money = parseInt(savedMoney);
             if (savedDrillLevel) drillLevel = parseInt(savedDrillLevel);
+            if (savedCoolerCount) coolerCount = parseInt(savedCoolerCount);
             if (savedMaterials) materials = JSON.parse(savedMaterials);
 
             updateDisplay();
             renderDrills();
+            updateDrillButton();
+            updateCoolerButton();
             if (drillLevel === 0) {
                 showMessage("You need to buy your first drill!");
             }
