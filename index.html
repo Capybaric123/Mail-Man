@@ -48,14 +48,15 @@
         let autoSell = false;
 
         const ores = {
-            stone: { price: 5, amount: 0 },
-            coal: { price: 10, amount: 0 },
-            iron: { price: 15, amount: 0 },
-            magma: { price: 20, amount: 0 },
-            diamond: { price: 100, amount: 0 },
-            emerald: { price: 500, amount: 0 },
-            lazuli: { price: 1000, amount: 0 },
-            ruby: { price: 10000, amount: 0 },
+            stone: { price: 0.5, amount: 0 },
+            coal: { price: 1, amount: 0 },
+            copper: { price: 1.25, amount: 0 },
+            iron: { price: 1.5, amount: 0 },
+            magma: { price: 2, amount: 0 },
+            diamond: { price: 10, amount: 0 },
+            emerald: { price: 50, amount: 0 },
+            lazuli: { price: 100, amount: 0 },
+            ruby: { price: 1000, amount: 0 },
         };
 
         function getRandomInt(max) {
@@ -129,6 +130,7 @@
                     let diamondChance = 0.001;
                     let magmaChance = 0.003;
                     let ironChance = 0.006;
+                    let copperChance = 0.6;
                     let coalChance = 0.09;
 
                     // Increase chances for rarer ores based on upgrades
@@ -146,6 +148,7 @@
                     else if (roll < diamondChance) ores.diamond.amount += quantityMined;
                     else if (roll < magmaChance) ores.magma.amount += quantityMined;
                     else if (roll < ironChance) ores.iron.amount += quantityMined;
+                    else if (roll < copperChance) ores.copper.amount += quantityMined;
                     else if (roll < coalChance) ores.coal.amount += quantityMined;
                     else ores.stone.amount += quantityMined;
                 }
