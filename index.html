@@ -49,6 +49,10 @@
             ruby: { price: 10000, amount: 0 },
         };
 
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max) + 1; // Random int from 1 to max
+        }
+
         function saveGame() {
             const gameState = {
                 money,
@@ -117,14 +121,17 @@
                     emeraldChance += upgrades * 0.0005;
                     diamondChance += upgrades * 0.005;
 
-                    if (roll < rubyChance) ores.ruby.amount += 10;
-                    else if (roll < lazuliChance) ores.lazuli.amount += 10;
-                    else if (roll < emeraldChance) ores.emerald.amount += 10;
-                    else if (roll < diamondChance) ores.diamond.amount += 10;
-                    else if (roll < magmaChance) ores.magma.amount += 10;
-                    else if (roll < ironChance) ores.iron.amount += 10;
-                    else if (roll < coalChance) ores.coal.amount += 10;
-                    else ores.stone.amount += 10;
+                    // Randomize the quantity mined (from 1 to 10)
+                    const quantityMined = getRandomInt(10);
+
+                    if (roll < rubyChance) ores.ruby.amount += quantityMined;
+                    else if (roll < lazuliChance) ores.lazuli.amount += quantityMined;
+                    else if (roll < emeraldChance) ores.emerald.amount += quantityMined;
+                    else if (roll < diamondChance) ores.diamond.amount += quantityMined;
+                    else if (roll < magmaChance) ores.magma.amount += quantityMined;
+                    else if (roll < ironChance) ores.iron.amount += quantityMined;
+                    else if (roll < coalChance) ores.coal.amount += quantityMined;
+                    else ores.stone.amount += quantityMined;
                 }
                 if (autoSell) {
                     sellAllOres();
