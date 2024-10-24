@@ -9,4 +9,5 @@ Here is the link to the site: https://capybaric123.github.io/Mining-Simulator/
 
 Here is an example of the UI in the game:
 
-<img src="blob:chrome-untrusted://media-app/998ac120-1060-48a9-839c-862eaf16ed5b" alt="Screenshot 2024-10-24 2.09.41 PM.png"/>![image](https://github.com/user-attachments/assets/c4922e60-4b66-4fa1-a3d7-70ebcc87fb32)
+![Снимок экрана (19)](https://github.com/user-attachments/assets/e75d9e54-1e4d-49b1-a676-29dc6885e8dc)
+
