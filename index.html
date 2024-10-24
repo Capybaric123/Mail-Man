@@ -11,7 +11,16 @@
         button { margin: 5px; }
         #oreList { margin-top: 20px; }
         #counters { margin-top: 20px; }
-        .ore-row { margin-bottom: 10px; }
+        .ore-row { margin-bottom: 10px; position: relative; }
+        .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; }
+        .stone { background-color: gray; }
+        .coal { background-color: black; }
+        .iron { background-color: lightgray; }
+        .magma { background: linear-gradient(to right, orange, brown); }
+        .diamond { background-color: lightblue; opacity: 0.5; }
+        .emerald { background-color: green; opacity: 0.5; }
+        .lazuli { background-color: blue; }
+        .ruby { background-color: red; opacity: 0.5; }
     </style>
 </head>
 <body>
@@ -38,14 +47,14 @@
         let autoSell = false;
 
         const ores = {
-            stone: { price: 0.5, amount: 0 },
-            coal: { price: 1, amount: 0 },
-            iron: { price: 1.5, amount: 0 },
-            magma: { price: 2, amount: 0 },
-            diamond: { price: 10, amount: 0 },
-            emerald: { price: 50, amount: 0 },
-            lazuli: { price: 100, amount: 0 },
-            ruby: { price: 1000, amount: 0 },
+            stone: { price: 5, amount: 0 },
+            coal: { price: 10, amount: 0 },
+            iron: { price: 15, amount: 0 },
+            magma: { price: 20, amount: 0 },
+            diamond: { price: 100, amount: 0 },
+            emerald: { price: 500, amount: 0 },
+            lazuli: { price: 1000, amount: 0 },
+            ruby: { price: 10000, amount: 0 },
         };
 
         function getRandomInt(max) {
@@ -96,6 +105,12 @@
                     <button onclick="sellOre('${ore}', 10)">Sell 10</button>
                     <button onclick="sellOre('${ore}', data.amount)">Sell All</button>
                 `;
+
+                // Create a colored rectangle for the ore
+                const colorDiv = document.createElement('div');
+                colorDiv.classList.add('ore-color', ore);
+                oreRow.appendChild(colorDiv);
+
                 document.getElementById('oreList').appendChild(oreRow);
             });
         }
