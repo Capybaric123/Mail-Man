@@ -30,10 +30,11 @@
         <div id="money">Money: $1000</div>
         <div id="timer">Time: 0s</div>
         <div>
-            <button id="buyDrill">Buy Drill (50$)</button>
-            <button id="upgradeDrill">Upgrade Drills (100$)</button>
-            <button id="buyCooler">Buy Cooler (200$)</button>
-            <button id="autoSell">Toggle Auto Sell</button>
+            <!-- Added tooltips (title attribute) to unlockable buttons -->
+            <button id="buyDrill" title="Buy a drill to start mining ores. Costs 50$.">Buy Drill (50$)</button>
+            <button id="upgradeDrill" title="Upgrade your drill to reduce mining cooldown and improve ore find rates. Costs 100$.">Upgrade Drills (100$)</button>
+            <button id="buyCooler" title="Buy a cooler to further reduce the mining cooldown. Costs 200$.">Buy Cooler (200$)</button>
+            <button id="autoSell" title="Automatically sell all mined ores after each mining operation.">Toggle Auto Sell</button>
         </div>
         <div id="oreList"></div>
         <div id="counters">Drills: 0 | Upgrades: 0 | Coolers: 0</div>
