@@ -14,7 +14,7 @@
         .ore-row { margin-bottom: 10px; position: relative; }
         .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
         .stone { background-color: gray; }
-        .coal { background-color: black; }
+        .coal { background-color: black; color: white; }
         .iron { background-color: lightgray; }
         .magma { background: linear-gradient(to right, orange, brown); }
         .diamond { background-color: lightblue; opacity: 0.5; }
@@ -22,7 +22,7 @@
         .lazuli { background-color: blue; }
         .ruby { background-color: red; opacity: 0.5; }
         .ore-text { position: relative; z-index: 1; }
-        .coal-text { color: white; } /* Add this line for coal text color */
+        #leaderboard { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -37,6 +37,18 @@
         </div>
         <div id="oreList"></div>
         <div id="counters">Miners: 0 | Upgrades: 0 | Coolers: 0</div>
+        
+        <div id="leaderboard">
+            <h3>Leaderboard</h3>
+            <input type="text" id="playerName" placeholder="Enter your name">
+            <button id="submitScore">Submit Score</button>
+            <table>
+                <thead>
+                    <tr><th>Name</th><th>Score</th></tr>
+                </thead>
+                <tbody id="leaderboardBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -64,7 +76,16 @@
         }
 
         function saveGame() {
-            const gameState = { money, drills, coolerCount, upgrades, drillCooldown, timer, autoSell, ores };
+            const gameState = {
+                money,
+                drills,
+                coolerCount,
+                upgrades,
+                drillCooldown,
+                timer,
+                autoSell,
+                ores
+            };
             localStorage.setItem('miningGameSave', JSON.stringify(gameState));
         }
 
@@ -72,7 +93,14 @@
             const savedGame = localStorage.getItem('miningGameSave');
             if (savedGame) {
                 const gameState = JSON.parse(savedGame);
-                Object.assign({ money, drills, coolerCount, upgrades, drillCooldown, timer, autoSell }, gameState);
+                money = gameState.money;
+                drills = gameState.drills;
+                coolerCount = gameState.coolerCount;
+                upgrades = gameState.upgrades;
+                drillCooldown = gameState.drillCooldown;
+                timer = gameState.timer;
+                autoSell = gameState.autoSell;
+                Object.assign(ores, gameState.ores);  // Restore ore amounts
                 updateDisplay();
             }
         }
@@ -86,12 +114,13 @@
                 const oreRow = document.createElement('div');
                 oreRow.classList.add('ore-row');
                 oreRow.innerHTML = `
-                    <div class="ore-text ${ore === 'coal' ? 'coal-text' : ''}">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 1 | Amount: ${data.amount} 
+                    <div class="ore-text">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
                     <button onclick="sellOre('${ore}', 1)">Sell 1</button>
                     <button onclick="sellOre('${ore}', 10)">Sell 10</button>
                     <button onclick="sellOre('${ore}', data.amount)">Sell All</button></div>
                 `;
 
+                // Create a colored rectangle for the ore
                 const colorDiv = document.createElement('div');
                 colorDiv.classList.add('ore-color', ore);
                 oreRow.appendChild(colorDiv);
@@ -105,31 +134,14 @@
                     let roll = Math.random();
                     const quantityMined = getRandomInt(10);
 
-                    // Base drop chances for each ore
-                    let chances = [
-                        { name: 'stone', chance: 0.90 },
-                        { name: 'coal', chance: 0.09 },
-                        { name: 'iron', chance: 0.006 },
-                        { name: 'magma', chance: 0.003 },
-                        { name: 'diamond', chance: 0.001 },
-                        { name: 'emerald', chance: 0.0001 },
-                        { name: 'lazuli', chance: 0.00001 },
-                        { name: 'ruby', chance: 0.000001 }
-                    ];
-
-                    // Increase chances for rarer ores based on upgrades
-                    chances.forEach(ore => {
-                        ore.chance += (upgrades * 0.000005); // adjust this value as necessary
-                    });
-
-                    // Determine which ore is mined based on roll
-                    for (let ore of chances) {
-                        if (roll < ore.chance) {
-                            ores[ore.name].amount += quantityMined;
-                            break;
-                        }
-                        roll -= ore.chance; // Decrease roll by the chance of the current ore
-                    }
+                    if (roll < 0.0001) ores.ruby.amount += quantityMined;
+                    else if (roll < 0.001) ores.lazuli.amount += quantityMined;
+                    else if (roll < 0.005) ores.emerald.amount += quantityMined;
+                    else if (roll < 0.01) ores.diamond.amount += quantityMined;
+                    else if (roll < 0.03) ores.magma.amount += quantityMined;
+                    else if (roll < 0.06) ores.iron.amount += quantityMined;
+                    else if (roll < 0.09) ores.coal.amount += quantityMined;
+                    else ores.stone.amount += quantityMined;
                 }
                 if (autoSell) {
                     sellAllOres();
@@ -176,6 +188,7 @@
                 money -= 100;
                 upgrades++;
                 updateDisplay();
+                saveGame();
             }
         };
 
@@ -185,6 +198,7 @@
                 drillCooldown = Math.max(800, drillCooldown - 200);
                 money -= 200;
                 updateDisplay();
+                saveGame();
             }
         };
 
@@ -192,6 +206,30 @@
             autoSell = !autoSell;
             document.getElementById('autoSell').innerText = autoSell ? "Disable Auto Sell" : "Enable Auto Sell";
         };
+
+        document.getElementById('submitScore').onclick = () => {
+            const playerName = document.getElementById('playerName').value.trim();
+            if (playerName && money > 0) {
+                const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+                leaderboard.push({ name: playerName, score: money });
+                leaderboard.sort((a, b) => b.score - a.score); // Sort by score descending
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10))); // Keep top 10
+                updateLeaderboard();
+                document.getElementById('playerName').value = '';// Clear input
+                saveGame();
+            }
+        };
+
+        function updateLeaderboard() {
+            const leaderboardBody = document.getElementById('leaderboardBody');
+            leaderboardBody.innerHTML = ''; // Clear existing entries
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            leaderboard.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${entry.name}</td><td>${entry.score}</td>`;
+                leaderboardBody.appendChild(row);
+            });
+        }
 
         // Auto-save every second
         setInterval(saveGame, 1000);
@@ -202,6 +240,7 @@
         startTimer();
         setInterval(mine, drillCooldown);
         updateDisplay();
+        updateLeaderboard(); // Load leaderboard on startup
     </script>
 </body>
 </html>
