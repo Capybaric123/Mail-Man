@@ -12,7 +12,7 @@
         #oreList { margin-top: 20px; }
         #counters { margin-top: 20px; }
         .ore-row { margin-bottom: 10px; position: relative; }
-        .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; }
+        .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
         .stone { background-color: gray; }
         .coal { background-color: black; }
         .iron { background-color: lightgray; }
@@ -21,6 +21,7 @@
         .emerald { background-color: green; opacity: 0.5; }
         .lazuli { background-color: blue; }
         .ruby { background-color: red; opacity: 0.5; }
+        .ore-text { position: relative; z-index: 1; }
     </style>
 </head>
 <body>
@@ -100,10 +101,10 @@
                 const oreRow = document.createElement('div');
                 oreRow.classList.add('ore-row');
                 oreRow.innerHTML = `
-                    ${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
+                    <div class="ore-text">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
                     <button onclick="sellOre('${ore}', 1)">Sell 1</button>
                     <button onclick="sellOre('${ore}', 10)">Sell 10</button>
-                    <button onclick="sellOre('${ore}', data.amount)">Sell All</button>
+                    <button onclick="sellOre('${ore}', data.amount)">Sell All</button></div>
                 `;
 
                 // Create a colored rectangle for the ore
@@ -111,6 +112,7 @@
                 colorDiv.classList.add('ore-color', ore);
                 oreRow.appendChild(colorDiv);
 
+                oreRow.appendChild(colorDiv); // Append colorDiv after the ore text
                 document.getElementById('oreList').appendChild(oreRow);
             });
         }
