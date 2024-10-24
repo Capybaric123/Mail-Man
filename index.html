@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mining Game</title>
+    <title>Mining Simulator</title>
     <style>
         body { font-family: Arial, sans-serif; }
         #game { max-width: 600px; margin: auto; }
@@ -14,7 +14,7 @@
         .ore-row { margin-bottom: 10px; position: relative; }
         .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
         .stone { background-color: gray; }
-        .coal { background-color: black; color: white; }
+        .coal { background-color: black; color: #ffffff; }
         .iron { background-color: lightgray; }
         .magma { background: linear-gradient(to right, orange, brown); }
         .diamond { background-color: lightblue; opacity: 0.5; }
@@ -36,7 +36,7 @@
             <button id="autoSell">Toggle Auto Sell</button>
         </div>
         <div id="oreList"></div>
-        <div id="counters">Miners: 0 | Upgrades: 0 | Coolers: 0</div>
+        <div id="counters">Drills: 0 | Upgrades: 0 | Coolers: 0</div>
         
         <div id="leaderboard">
             <h3>Leaderboard</h3>
