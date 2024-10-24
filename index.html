@@ -117,14 +117,14 @@
                     emeraldChance += upgrades * 0.0005;
                     diamondChance += upgrades * 0.005;
 
-                    if (roll < rubyChance) ores.ruby.amount += getRandomInt(10);
-                    else if (roll < lazuliChance) ores.lazuli.amount += getRandomInt(10);
-                    else if (roll < emeraldChance) ores.emerald.amount += getRandomInt(10);
-                    else if (roll < diamondChance) ores.diamond.amount += getRandomInt(10);
-                    else if (roll < magmaChance) ores.magma.amount += getRandomInt(10);
-                    else if (roll < ironChance) ores.iron.amount += getRandomInt(10);
-                    else if (roll < coalChance) ores.coal.amount += getRandomInt(10);
-                    else ores.stone.amount += getRandomInt(10);
+                    if (roll < rubyChance) ores.ruby.amount += 10;
+                    else if (roll < lazuliChance) ores.lazuli.amount += 10;
+                    else if (roll < emeraldChance) ores.emerald.amount += 10;
+                    else if (roll < diamondChance) ores.diamond.amount += 10;
+                    else if (roll < magmaChance) ores.magma.amount += 10;
+                    else if (roll < ironChance) ores.iron.amount += 10;
+                    else if (roll < coalChance) ores.coal.amount += 10;
+                    else ores.stone.amount += 10;
                 }
                 if (autoSell) {
                     sellAllOres();
