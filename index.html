@@ -15,6 +15,7 @@
         .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
         .stone { background-color: gray; }
         .coal { background-color: black; }
+        .copper { background-color: #cd7f32; } /* Copper color */
         .iron { background-color: lightgray; }
         .magma { background: linear-gradient(to right, orange, brown); }
         .diamond { background-color: lightblue; opacity: 0.5; }
@@ -50,6 +51,7 @@
         const ores = {
             stone: { price: 0.5, amount: 0 },
             coal: { price: 1, amount: 0 },
+            copper: { price: 1.25, amount: 0 },
             iron: { price: 1.5, amount: 0 },
             magma: { price: 2, amount: 0 },
             diamond: { price: 10, amount: 0 },
@@ -63,16 +65,7 @@
         }
 
         function saveGame() {
-            const gameState = {
-                money,
-                drills,
-                coolerCount,
-                upgrades,
-                drillCooldown,
-                timer,
-                autoSell,
-                ores
-            };
+            const gameState = { money, drills, coolerCount, upgrades, drillCooldown, timer, autoSell, ores };
             localStorage.setItem('miningGameSave', JSON.stringify(gameState));
         }
 
@@ -80,20 +73,13 @@
             const savedGame = localStorage.getItem('miningGameSave');
             if (savedGame) {
                 const gameState = JSON.parse(savedGame);
-                money = gameState.money;
-                drills = gameState.drills;
-                coolerCount = gameState.coolerCount;
-                upgrades = gameState.upgrades;
-                drillCooldown = gameState.drillCooldown;
-                timer = gameState.timer;
-                autoSell = gameState.autoSell;
-                Object.assign(ores, gameState.ores);  // Restore ore amounts
+                Object.assign({ money, drills, coolerCount, upgrades, drillCooldown, timer, autoSell }, gameState);
                 updateDisplay();
             }
         }
 
         function updateDisplay() {
-            document.getElementById('money').innerText = `Money: $${money}`;
+            document.getElementById('money').innerText = `Money: $${money.toFixed(2)}`;
             document.getElementById('timer').innerText = `Time: ${timer}s`;
             document.getElementById('counters').innerText = `Miners: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount}`;
             document.getElementById('oreList').innerHTML = '';
@@ -107,12 +93,9 @@
                     <button onclick="sellOre('${ore}', data.amount)">Sell All</button></div>
                 `;
 
-                // Create a colored rectangle for the ore
                 const colorDiv = document.createElement('div');
                 colorDiv.classList.add('ore-color', ore);
                 oreRow.appendChild(colorDiv);
-
-                oreRow.appendChild(colorDiv); // Append colorDiv after the ore text
                 document.getElementById('oreList').appendChild(oreRow);
             });
         }
@@ -121,33 +104,34 @@
             if (drills > 0) {
                 for (let i = 0; i < drills; i++) {
                     let roll = Math.random();
-
-                    // Base drop chances for each ore
-                    let rubyChance = 0.000001;
-                    let lazuliChance = 0.00001;
-                    let emeraldChance = 0.0001;
-                    let diamondChance = 0.001;
-                    let magmaChance = 0.003;
-                    let ironChance = 0.006;
-                    let coalChance = 0.09;
-
-                    // Increase chances for rarer ores based on upgrades
-                    rubyChance += upgrades * 0.000005;   // Increase by 0.05% per upgrade
-                    lazuliChance += upgrades * 0.00005;
-                    emeraldChance += upgrades * 0.0005;
-                    diamondChance += upgrades * 0.005;
-
-                    // Determine quantity mined
                     const quantityMined = getRandomInt(10);
 
-                    if (roll < rubyChance) ores.ruby.amount += quantityMined;
-                    else if (roll < lazuliChance) ores.lazuli.amount += quantityMined;
-                    else if (roll < emeraldChance) ores.emerald.amount += quantityMined;
-                    else if (roll < diamondChance) ores.diamond.amount += quantityMined;
-                    else if (roll < magmaChance) ores.magma.amount += quantityMined;
-                    else if (roll < ironChance) ores.iron.amount += quantityMined;
-                    else if (roll < coalChance) ores.coal.amount += quantityMined;
-                    else ores.stone.amount += quantityMined;
+                    // Base drop chances for each ore
+                    let chances = [
+                        { name: 'stone', chance: 0.90 },
+                        { name: 'coal', chance: 0.09 },
+                        { name: 'copper', chance: 0.01 },
+                        { name: 'iron', chance: 0.006 },
+                        { name: 'magma', chance: 0.003 },
+                        { name: 'diamond', chance: 0.001 },
+                        { name: 'emerald', chance: 0.0001 },
+                        { name: 'lazuli', chance: 0.00001 },
+                        { name: 'ruby', chance: 0.000001 }
+                    ];
+
+                    // Increase chances for rarer ores based on upgrades
+                    chances.forEach(ore => {
+                        ore.chance += (upgrades * 0.000005); // adjust this value as necessary
+                    });
+
+                    // Determine which ore is mined based on roll
+                    for (let ore of chances) {
+                        if (roll < ore.chance) {
+                            ores[ore.name].amount += quantityMined;
+                            break;
+                        }
+                        roll -= ore.chance; // Decrease roll by the chance of the current ore
+                    }
                 }
                 if (autoSell) {
                     sellAllOres();
