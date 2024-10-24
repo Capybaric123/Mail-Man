@@ -22,6 +22,7 @@
         .lazuli { background-color: blue; }
         .ruby { background-color: red; opacity: 0.5; }
         .ore-text { position: relative; z-index: 1; }
+        .coal-text { color: white; } /* Add this line for coal text color */
     </style>
 </head>
 <body>
@@ -85,7 +86,7 @@
                 const oreRow = document.createElement('div');
                 oreRow.classList.add('ore-row');
                 oreRow.innerHTML = `
-                    <div class="ore-text">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
+                    <div class="ore-text ${ore === 'coal' ? 'coal-text' : ''}">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
                     <button onclick="sellOre('${ore}', 1)">Sell 1</button>
                     <button onclick="sellOre('${ore}', 10)">Sell 10</button>
                     <button onclick="sellOre('${ore}', data.amount)">Sell All</button></div>
