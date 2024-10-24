@@ -35,7 +35,6 @@
         let upgrades = 0;
         let drillCooldown = 1000; // milliseconds
         let timer = 0;
-        let interval;
         let autoSell = false;
 
         const ores = {
@@ -121,7 +120,7 @@
                     emeraldChance += upgrades * 0.0005;
                     diamondChance += upgrades * 0.005;
 
-                    // Randomize the quantity mined (from 1 to 10)
+                    // Determine quantity mined
                     const quantityMined = getRandomInt(10);
 
                     if (roll < rubyChance) ores.ruby.amount += quantityMined;
