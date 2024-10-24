@@ -59,6 +59,7 @@
         let drillCooldown = 1000; // milliseconds
         let timer = 0;
         let autoSell = false;
+        let miningInterval;
 
         const ores = {
             stone: { price: 0.5, amount: 0 },
@@ -117,7 +118,7 @@
                     <div class="ore-text">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
                     <button onclick="sellOre('${ore}', 1)">Sell 1</button>
                     <button onclick="sellOre('${ore}', 10)">Sell 10</button>
-                    <button onclick="sellOre('${ore}', data.amount)">Sell All</button></div>
+                    <button onclick="sellOre('${ore}', ${data.amount})">Sell All</button></div>
                 `;
 
                 // Create a colored rectangle for the ore
@@ -131,26 +132,25 @@
         function mine() {
             if (drills > 0) {
                 for (let i = 0; i < drills; i++) {
-            let roll = Math.random();
-            const quantityMined = getRandomInt(10);
-            const upgradeBoost = upgrades * 0.0005;  // Boost chances by 0.05% per upgrade
+                    let roll = Math.random();
+                    const quantityMined = getRandomInt(10);
+                    const upgradeBoost = upgrades * 0.0005;  // Boost chances by 0.05% per upgrade
 
-            if (roll < (0.0001 + upgradeBoost)) ores.ruby.amount += quantityMined;
-            else if (roll < (0.001 + upgradeBoost)) ores.lazuli.amount += quantityMined;
-            else if (roll < (0.005 + upgradeBoost)) ores.emerald.amount += quantityMined;
-            else if (roll < (0.01 + upgradeBoost)) ores.diamond.amount += quantityMined;
-            else if (roll < (0.03 + upgradeBoost)) ores.magma.amount += quantityMined;
-            else if (roll < (0.06 + upgradeBoost)) ores.iron.amount += quantityMined;
-            else if (roll < (0.09 + upgradeBoost)) ores.coal.amount += quantityMined;
-            else ores.stone.amount += quantityMined;
+                    if (roll < (0.0001 + upgradeBoost)) ores.ruby.amount += quantityMined;
+                    else if (roll < (0.001 + upgradeBoost)) ores.lazuli.amount += quantityMined;
+                    else if (roll < (0.005 + upgradeBoost)) ores.emerald.amount += quantityMined;
+                    else if (roll < (0.01 + upgradeBoost)) ores.diamond.amount += quantityMined;
+                    else if (roll < (0.03 + upgradeBoost)) ores.magma.amount += quantityMined;
+                    else if (roll < (0.06 + upgradeBoost)) ores.iron.amount += quantityMined;
+                    else if (roll < (0.09 + upgradeBoost)) ores.coal.amount += quantityMined;
+                    else ores.stone.amount += quantityMined;
+                }
+                if (autoSell) {
+                    sellAllOres();
+                }
             }
-            if (autoSell) {
-                sellAllOres();
-            }
+            updateDisplay();
         }
-        updateDisplay();
-    }
-
 
         function sellOre(ore, quantity) {
             if (ores[ore].amount >= quantity) {
@@ -176,6 +176,11 @@
             }, 1000);
         }
 
+        function startMining() {
+            clearInterval(miningInterval);  // Clear the previous interval
+            miningInterval = setInterval(mine, drillCooldown);  // Set a new interval with updated cooldown
+        }
+
         document.getElementById('buyDrill').onclick = () => {
             if (money >= 50) {
                 drills++;
@@ -190,7 +195,7 @@
                 money -= 100;
                 upgrades++;
                 updateDisplay();
-                saveGame();
+                startMining();  // Restart mining with new cooldown
             }
         };
 
@@ -200,7 +205,7 @@
                 drillCooldown = Math.max(800, drillCooldown - 200);
                 money -= 200;
                 updateDisplay();
-                saveGame();
+                startMining();  // Restart mining with new cooldown
             }
         };
 
@@ -210,39 +215,20 @@
         };
 
         document.getElementById('submitScore').onclick = () => {
-            const playerName = document.getElementById('playerName').value.trim();
-            if (playerName && money > 0) {
-                const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-                leaderboard.push({ name: playerName, score: money });
-                leaderboard.sort((a, b) => b.score - a.score); // Sort by score descending
-                localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10))); // Keep top 10
-                updateLeaderboard();
-                document.getElementById('playerName').value = '';// Clear input
-                saveGame();
+            const playerName = document.getElementById('playerName').value;
+            if (playerName.trim()) {
+                const leaderboardBody = document.getElementById('leaderboardBody');
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${playerName}</td><td>${money.toFixed(2)}</td>`;
+                leaderboardBody.appendChild(row);
             }
         };
 
-        function updateLeaderboard() {
-            const leaderboardBody = document.getElementById('leaderboardBody');
-            leaderboardBody.innerHTML = ''; // Clear existing entries
-            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            leaderboard.forEach(entry => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${entry.name}</td><td>${entry.score}</td>`;
-                leaderboardBody.appendChild(row);
-            });
-        }
-
-        // Auto-save every second
-        setInterval(saveGame, 1000);
-
-        // Load the game state on startup
-        loadGame();
-
+        // Start the game
+        startMining();
         startTimer();
-        setInterval(mine, drillCooldown);
-        updateDisplay();
-        updateLeaderboard(); // Load leaderboard on startup
+        setInterval(saveGame, 10000);  // Save every 10 seconds
+        loadGame();
     </script>
 </body>
 </html>
