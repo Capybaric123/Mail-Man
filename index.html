@@ -131,24 +131,26 @@
         function mine() {
             if (drills > 0) {
                 for (let i = 0; i < drills; i++) {
-                    let roll = Math.random();
-                    const quantityMined = getRandomInt(10);
+            let roll = Math.random();
+            const quantityMined = getRandomInt(10);
+            const upgradeBoost = upgrades * 0.0005;  // Boost chances by 0.05% per upgrade
 
-                    if (roll < 0.0001) ores.ruby.amount += quantityMined;
-                    else if (roll < 0.001) ores.lazuli.amount += quantityMined;
-                    else if (roll < 0.005) ores.emerald.amount += quantityMined;
-                    else if (roll < 0.01) ores.diamond.amount += quantityMined;
-                    else if (roll < 0.03) ores.magma.amount += quantityMined;
-                    else if (roll < 0.06) ores.iron.amount += quantityMined;
-                    else if (roll < 0.09) ores.coal.amount += quantityMined;
-                    else ores.stone.amount += quantityMined;
-                }
-                if (autoSell) {
-                    sellAllOres();
-                }
+            if (roll < (0.0001 + upgradeBoost)) ores.ruby.amount += quantityMined;
+            else if (roll < (0.001 + upgradeBoost)) ores.lazuli.amount += quantityMined;
+            else if (roll < (0.005 + upgradeBoost)) ores.emerald.amount += quantityMined;
+            else if (roll < (0.01 + upgradeBoost)) ores.diamond.amount += quantityMined;
+            else if (roll < (0.03 + upgradeBoost)) ores.magma.amount += quantityMined;
+            else if (roll < (0.06 + upgradeBoost)) ores.iron.amount += quantityMined;
+            else if (roll < (0.09 + upgradeBoost)) ores.coal.amount += quantityMined;
+            else ores.stone.amount += quantityMined;
             }
-            updateDisplay();
+            if (autoSell) {
+                sellAllOres();
+            }
         }
+        updateDisplay();
+    }
+
 
         function sellOre(ore, quantity) {
             if (ores[ore].amount >= quantity) {
