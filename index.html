@@ -108,7 +108,7 @@
         function updateDisplay() {
             document.getElementById('money').innerText = `Money: $${money.toFixed(2)}`;
             document.getElementById('timer').innerText = `Time: ${timer}s`;
-            document.getElementById('counters').innerText = `Miners: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount}`;
+            document.getElementById('counters').innerText = `Drills: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount}`;
             document.getElementById('oreList').innerHTML = '';
             Object.entries(ores).forEach(([ore, data]) => {
                 const oreRow = document.createElement('div');
