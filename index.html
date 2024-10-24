@@ -15,7 +15,6 @@
         .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
         .stone { background-color: gray; }
         .coal { background-color: black; }
-        .copper { background-color: #cd7f32; } /* Copper color */
         .iron { background-color: lightgray; }
         .magma { background: linear-gradient(to right, orange, brown); }
         .diamond { background-color: lightblue; opacity: 0.5; }
@@ -51,7 +50,6 @@
         const ores = {
             stone: { price: 0.5, amount: 0 },
             coal: { price: 1, amount: 0 },
-            copper: { price: 1.25, amount: 0 },
             iron: { price: 1.5, amount: 0 },
             magma: { price: 2, amount: 0 },
             diamond: { price: 10, amount: 0 },
@@ -110,7 +108,6 @@
                     let chances = [
                         { name: 'stone', chance: 0.90 },
                         { name: 'coal', chance: 0.09 },
-                        { name: 'copper', chance: 0.01 },
                         { name: 'iron', chance: 0.006 },
                         { name: 'magma', chance: 0.003 },
                         { name: 'diamond', chance: 0.001 },
