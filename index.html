@@ -14,12 +14,7 @@
         #money, #timer { font-size: 24px; }
         #oreList { margin-top: 20px; }
         #counters { margin-top: 20px; }
-        div > div { /* Center buttons */
-            display: flex;
-            justify-content: center;
-            gap: 10px; /* Space between buttons */
-        }
-        .ore-row { margin-bottom: 5px; /* Reduced bottom margin for ore rows */ }
+        .ore-row { margin-bottom: 10px; position: relative; }
         .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
         .stone { background-color: gray; }
         .coal { background-color: darkgray; }
@@ -115,19 +110,19 @@
         }
 
         function updateDisplay() {
-            document.getElementById('money').innerText = `Money: $${money.toFixed(2)}`;
-            document.getElementById('timer').innerText = `Time: ${timer}s`;
-            document.getElementById('counters').innerText = `Drills: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount}`;
+            document.getElementById('money').innerText = Money: $${money.toFixed(2)};
+            document.getElementById('timer').innerText = Time: ${timer}s;
+            document.getElementById('counters').innerText = Drills: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount};
             document.getElementById('oreList').innerHTML = '';
             Object.entries(ores).forEach(([ore, data]) => {
                 const oreRow = document.createElement('div');
                 oreRow.classList.add('ore-row');
-                oreRow.innerHTML = `
+                oreRow.innerHTML = 
                     <div class="ore-text">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
                     <button onclick="sellOre('${ore}', 1)">Sell 1</button>
                     <button onclick="sellOre('${ore}', 10)">Sell 10</button>
                     <button onclick="sellOre('${ore}', ${data.amount})">Sell All</button></div>
-                `;
+                ;
 
                 // Create a colored rectangle for the ore
                 const colorDiv = document.createElement('div');
@@ -227,7 +222,7 @@
             if (playerName.trim()) {
                 const leaderboardBody = document.getElementById('leaderboardBody');
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${playerName}</td><td>${money.toFixed(2)}</td>`;
+                row.innerHTML = <td>${playerName}</td><td>${money.toFixed(2)}</td>;
                 leaderboardBody.appendChild(row);
             }
         };
