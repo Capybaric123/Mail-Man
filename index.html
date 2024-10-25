@@ -8,7 +8,29 @@
         body { font-family: Arial, sans-serif; }
         #game { max-width: 600px; margin: auto; }
         #money, #timer { font-size: 24px; }
-        button { margin: 5px; }
+        
+        /* Button Styles */
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            color: white;
+            background-color: #8B4513; /* Brown */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #7B3F0A; /* Darker brown */
+            transform: scale(1.05); /* Slightly enlarge */
+        }
+
+        button:disabled {
+            background-color: gray; /* Disable button appearance */
+            cursor: not-allowed; /* Change cursor on disabled */
+        }
+
         #oreList { margin-top: 20px; }
         #counters { margin-top: 20px; }
         .ore-row { margin-bottom: 10px; position: relative; }
@@ -30,7 +52,6 @@
         <div id="money">Money: $1000</div>
         <div id="timer">Time: 0s</div>
         <div>
-            <!-- Added tooltips (title attribute) to unlockable buttons -->
             <button id="buyDrill" title="Buy a drill to start mining ores. Costs 50$.">Buy Drill (50$)</button>
             <button id="upgradeDrill" title="Upgrade your drill to reduce mining cooldown and improve ore find rates. Costs 100$.">Upgrade Drills (100$)</button>
             <button id="buyCooler" title="Buy a cooler to further reduce the mining cooldown. Costs 200$.">Buy Cooler (200$)</button>
