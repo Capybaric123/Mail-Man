@@ -14,7 +14,12 @@
         #money, #timer { font-size: 24px; }
         #oreList { margin-top: 20px; }
         #counters { margin-top: 20px; }
-        .ore-row { margin-bottom: 10px; position: relative; }
+        div > div { /* Center buttons */
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Space between buttons */
+        }
+        .ore-row { margin-bottom: 5px; /* Reduced bottom margin for ore rows */ }
         .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
         .stone { background-color: gray; }
         .coal { background-color: darkgray; }
