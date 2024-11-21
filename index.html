@@ -3,235 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mining Simulator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #3B2A2A; /* Dark brown background */
-            color: black; /* Text color for better visibility */
-        }
-        #game { max-width: 600px; margin: auto; }
-        #money, #timer { font-size: 24px; }
-        #oreList { margin-top: 20px; }
-        #counters { margin-top: 20px; }
-        .ore-row { margin-bottom: 10px; position: relative; }
-        .ore-color { height: 20px; margin-top: 5px; border-radius: 5px; position: absolute; top: 0; left: 0; right: 0; z-index: -1; }
-        .stone { background-color: gray; }
-        .coal { background-color: darkgray; }
-        .iron { background-color: lightgray; }
-        .magma { background: linear-gradient(to right, orange, brown); }
-        .diamond { background-color: lightblue; opacity: 0.5; }
-        .emerald { background-color: green; opacity: 0.5; }
-        .lazuli { background-color: blue; }
-        .ruby { background-color: red; opacity: 0.5; }
-        .ore-text { position: relative; z-index: 1; }
-        #leaderboard { margin-top: 20px; }
-    </style>
+    <title>Email Typing Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="game">
-        <div id="money">Money: $1000</div>
-        <div id="timer">Time: 0s</div>
-        <div>
-            <button id="buyDrill" title="Buy a drill to start mining ores. Costs 50$.">Buy Drill (50$)</button>
-            <button id="upgradeDrill" title="Upgrade your drill to reduce mining cooldown and improve ore find rates. Costs 100$.">Upgrade Drills (100$)</button>
-            <button id="buyCooler" title="Buy a cooler to further reduce the mining cooldown. Costs 200$.">Buy Cooler (200$)</button>
-            <button id="autoSell" title="Automatically sell all mined ores after each mining operation.">Toggle Auto Sell</button>
-        </div>
-        <div id="oreList"></div>
-        <div id="counters">Drills: 0 | Upgrades: 0 | Coolers: 0</div>
-        
-        <div id="leaderboard">
-            <h3>Leaderboard</h3>
-            <input type="text" id="playerName" placeholder="Enter your name">
-            <button id="submitScore">Submit Score</button>
-            <table>
-                <thead>
-                    <tr><th>Name</th><th>Score</th></tr>
-                </thead>
-                <tbody id="leaderboardBody"></tbody>
-            </table>
-        </div>
+
+<!-- MS-DOS Terminal Window -->
+<div id="terminal" class="terminal">
+    <pre id="terminalText"></pre>
+</div>
+
+<!-- Email Request Game Window -->
+<div id="gameWindow" class="gameWindow">
+    <div id="requestWindow" class="requestWindow">
+        <p id="requestText"></p>
+        <textarea id="emailInput" placeholder="Type your email here..." rows="6" cols="40"></textarea>
+        <button id="submitButton">Send Email</button>
     </div>
+</div>
 
-    <script>
-        let money = 1000;
-        let drills = 0;
-        let coolerCount = 0;
-        let upgrades = 0;
-        let drillCooldown = 1000; // milliseconds
-        let timer = 0;
-        let autoSell = false;
-        let miningInterval;
-
-        const ores = {
-            stone: { price: 0.5, amount: 0 },
-            coal: { price: 1, amount: 0 },
-            iron: { price: 1.5, amount: 0 },
-            magma: { price: 2, amount: 0 },
-            diamond: { price: 10, amount: 0 },
-            emerald: { price: 50, amount: 0 },
-            lazuli: { price: 100, amount: 0 },
-            ruby: { price: 1000, amount: 0 },
-        };
-
-        function getRandomInt(max) {
-            return Math.floor(Math.random() * max) + 1; // Random int from 1 to max
-        }
-
-        function saveGame() {
-            const gameState = {
-                money,
-                drills,
-                coolerCount,
-                upgrades,
-                drillCooldown,
-                timer,
-                autoSell,
-                ores
-            };
-            localStorage.setItem('miningGameSave', JSON.stringify(gameState));
-        }
-
-        function loadGame() {
-            const savedGame = localStorage.getItem('miningGameSave');
-            if (savedGame) {
-                const gameState = JSON.parse(savedGame);
-                money = gameState.money;
-                drills = gameState.drills;
-                coolerCount = gameState.coolerCount;
-                upgrades = gameState.upgrades;
-                drillCooldown = gameState.drillCooldown;
-                timer = gameState.timer;
-                autoSell = gameState.autoSell;
-                Object.assign(ores, gameState.ores);  // Restore ore amounts
-                updateDisplay();
-            }
-        }
-
-        function updateDisplay() {
-            document.getElementById('money').innerText = Money: $${money.toFixed(2)};
-            document.getElementById('timer').innerText = Time: ${timer}s;
-            document.getElementById('counters').innerText = Drills: ${drills} | Upgrades: ${upgrades} | Coolers: ${coolerCount};
-            document.getElementById('oreList').innerHTML = '';
-            Object.entries(ores).forEach(([ore, data]) => {
-                const oreRow = document.createElement('div');
-                oreRow.classList.add('ore-row');
-                oreRow.innerHTML = 
-                    <div class="ore-text">${ore.charAt(0).toUpperCase() + ore.slice(1)}: $${data.price} for 10 | Amount: ${data.amount} 
-                    <button onclick="sellOre('${ore}', 1)">Sell 1</button>
-                    <button onclick="sellOre('${ore}', 10)">Sell 10</button>
-                    <button onclick="sellOre('${ore}', ${data.amount})">Sell All</button></div>
-                ;
-
-                // Create a colored rectangle for the ore
-                const colorDiv = document.createElement('div');
-                colorDiv.classList.add('ore-color', ore);
-                oreRow.appendChild(colorDiv);
-                document.getElementById('oreList').appendChild(oreRow);
-            });
-        }
-
-        function mine() {
-            if (drills > 0) {
-                for (let i = 0; i < drills; i++) {
-                    let roll = Math.random();
-                    const quantityMined = getRandomInt(10);
-                    const upgradeBoost = upgrades * 0.0005;  // Boost chances by 0.05% per upgrade
-
-                    if (roll < (0.0001 + upgradeBoost)) ores.ruby.amount += quantityMined;
-                    else if (roll < (0.001 + upgradeBoost)) ores.lazuli.amount += quantityMined;
-                    else if (roll < (0.005 + upgradeBoost)) ores.emerald.amount += quantityMined;
-                    else if (roll < (0.01 + upgradeBoost)) ores.diamond.amount += quantityMined;
-                    else if (roll < (0.03 + upgradeBoost)) ores.magma.amount += quantityMined;
-                    else if (roll < (0.06 + upgradeBoost)) ores.iron.amount += quantityMined;
-                    else if (roll < (0.09 + upgradeBoost)) ores.coal.amount += quantityMined;
-                    else ores.stone.amount += quantityMined;
-                }
-                if (autoSell) {
-                    sellAllOres();
-                }
-            }
-            updateDisplay();
-        }
-
-        function sellOre(ore, quantity) {
-            if (ores[ore].amount >= quantity) {
-                ores[ore].amount -= quantity;
-                money += ores[ore].price * quantity;
-                updateDisplay();
-            }
-        }
-
-        function sellAllOres() {
-            for (const ore of Object.keys(ores)) {
-                const amountToSell = ores[ore].amount;
-                money += ores[ore].price * amountToSell;
-                ores[ore].amount = 0;
-            }
-            updateDisplay();
-        }
-
-        function startTimer() {
-            setInterval(() => {
-                timer++;
-                updateDisplay();
-            }, 1000);
-        }
-
-        function startMining() {
-            clearInterval(miningInterval);  // Clear the previous interval
-            miningInterval = setInterval(mine, drillCooldown);  // Set a new interval with updated cooldown
-        }
-
-        document.getElementById('buyDrill').onclick = () => {
-            if (money >= 50) {
-                drills++;
-                money -= 50;
-                updateDisplay();
-            }
-        };
-
-        document.getElementById('upgradeDrill').onclick = () => {
-            if (money >= 100) {
-                drillCooldown = Math.max(800, drillCooldown - 200);
-                money -= 100;
-                upgrades++;
-                updateDisplay();
-                startMining();  // Restart mining with new cooldown
-            }
-        };
-
-        document.getElementById('buyCooler').onclick = () => {
-            if (money >= 200) {
-                coolerCount++;
-                drillCooldown = Math.max(800, drillCooldown - 200);
-                money -= 200;
-                updateDisplay();
-                startMining();  // Restart mining with new cooldown
-            }
-        };
-
-        document.getElementById('autoSell').onclick = () => {
-            autoSell = !autoSell;
-            document.getElementById('autoSell').innerText = autoSell ? "Disable Auto Sell" : "Enable Auto Sell";
-        };
-
-        document.getElementById('submitScore').onclick = () => {
-            const playerName = document.getElementById('playerName').value;
-            if (playerName.trim()) {
-                const leaderboardBody = document.getElementById('leaderboardBody');
-                const row = document.createElement('tr');
-                row.innerHTML = <td>${playerName}</td><td>${money.toFixed(2)}</td>;
-                leaderboardBody.appendChild(row);
-            }
-        };
-
-        // Start the game
-        startMining();
-        startTimer();
-        setInterval(saveGame, 10000);  // Save every 10 seconds
-        loadGame();
-    </script>
+<script src="script.js"></script>
 </body>
 </html>
