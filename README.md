@@ -4,7 +4,7 @@
 ![GitHub followers](https://img.shields.io/github/followers/Capybaric123?style=flat&logo=github&color=green)
 
 
-[![Static Badge](https://img.shields.io/badge/Issues-green?style=flat&logo=github&labelColor=grey&link=https%3A%2F%2Fgithub.com%2FCapybaric123%2FMail-Man%2Fissues%2F)](https://github.com/Capybara123/Mail-Man/issues/)
+[![Static Badge](https://img.shields.io/badge/Issues-green?style=flat&logo=github&labelColor=grey&link=https%3A%2F%2Fgithub.com%2FCapybaric123%2FMail-Man%2Fissues%2F)](https://github.com/Capybara123/Mail-Man/issues)
 
 
 This is a simple style io game where you are a ofice worker in the 90's and your goal is to send emails which are going to be requested from you by your boss.
